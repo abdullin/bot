@@ -1,5 +1,14 @@
+import pytz
 from telegram import Update, Message
 from telegram.ext import Updater, CommandHandler
+
+local_tz = pytz.timezone('Asia/Yekaterinburg')
+
+
+def utc_to_local(utc_dt):
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    return local_tz.normalize(local_dt) # .normalize might be unnecessary
+
 
 import logging
 logging.basicConfig(level=logging.DEBUG,
@@ -13,7 +22,7 @@ dispatcher = updater.dispatcher
 def echo(bot, update: Update):
     print(type(update))
     m : Message = update.message
-    print(update.message.date)
+    print(utc_to_local(update.message.date))
 
 
     bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
