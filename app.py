@@ -1,4 +1,5 @@
 import argparse
+import datetime
 
 import pytz
 from telegram import Update, Message
@@ -35,6 +36,7 @@ def append_todo(local, text):
     file = local.strftime('%Y-%m-%d') + ".json"
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
+        js.write('\n')
 
 
 
@@ -43,18 +45,20 @@ def echo(bot, update: Update):
 
     m : Message = update.message
 
-    local = utc_to_local(update.message.date)
+    local : datetime.datetime = utc_to_local(update.message.date)
 
     text = update.message.text
 
     cmd = text.split(' ', 1)[0].lower()
 
-    if cmd == 't':
+    if cmd == 'tm':
+        local = local + datetime.timedelta(days=1)
         append_todo(local, text)
-        bot.send_message(chat_id=update.message.chat_id, text='+today')
+        bot.send_message(chat_id=update.message.chat_id, text='+tomorrow')
         return
 
-    bot.send_message(chat_id=update.message.chat_id, text='wat?')
+    append_todo(local, text)
+    bot.send_message(chat_id=update.message.chat_id, text='+today')
 
 from telegram.ext import MessageHandler, Filters
 echo_handler = MessageHandler(Filters.text, echo)
