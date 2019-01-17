@@ -1,6 +1,16 @@
+import argparse
+
 import pytz
 from telegram import Update, Message
 from telegram.ext import Updater, CommandHandler
+
+
+parser = argparse.ArgumentParser(description='Launch')
+parser.add_argument('--key', action='store', dest='key',
+                    help='Current stage name: DEV, TEST or PROD. Default: DEV',required=True)
+# to allow introducing arguments in advance
+cfg, unknown = parser.parse_known_args()
+
 
 local_tz = pytz.timezone('Asia/Yekaterinburg')
 
@@ -15,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-updater = Updater('268340955:AAH2VAP-MSirp68M64WvfqJTsqSj8wxzzic')
+updater = Updater(cfg.key)
 dispatcher = updater.dispatcher
 
 
