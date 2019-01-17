@@ -34,7 +34,7 @@ import json
 def append_todo(local, text):
     file = local.strftime('%Y-%m-%d') + ".json"
     with open(file, mode='a+', encoding='utf-8') as js:
-        json.dump({'text': text, 'time': local.isoformat()}, js)
+        json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
 
 
 
