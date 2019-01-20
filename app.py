@@ -3,7 +3,7 @@ import datetime
 import os
 
 import pytz
-from telegram import Update, Message
+from telegram import Update, Message, Bot
 from telegram.ext import Updater, CommandHandler
 
 
@@ -35,27 +35,41 @@ context = None
 
 import json
 
-def append_index(local, text):
+
+
+
+def append_index(item):
     ensure_context_dir()
     file = get_context()+'/index.json'
     with open(file, mode='a+', encoding='utf-8') as js:
-        json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
+        json.dump(item, js, ensure_ascii=False)
         js.write('\n')
 
 
 
 
-def photo_handler(bot, update):
+
+
+
+
+def photo_handler(bot: Bot, update: Update):
     ensure_context_dir()
     m: Message = update.message
-    local: datetime.datetime = utc_to_local(update.message.date)
+    local = get_message_date_local(update)
     largest_photo_id = update.message.photo[-1].file_id
     file = bot.getFile(largest_photo_id)
 
-    name = get_context() + '/' + local.strftime('%Y-%m-%d') + ".jpg"
-
+    jpg_ = local.strftime('%Y-%m-%d_%H%M%S') + ".jpg"
+    name = get_context() + '/' + jpg_
 
     file.download(name)
+
+    append_index({
+        'kind': 'photo',
+        'file': jpg_,
+        'time': local.isoformat()
+    })
+
     reply(bot, update, 'saved')
 
 def get_context():
@@ -83,17 +97,7 @@ contexts = {
 }
 
 def echo(bot, update: Update):
-
-
-    m : Message = update.message
-
-
-    date = update.message.date
-
-    if update.message.forward_date:
-        date = update.message.forward_date
-
-    local : datetime.datetime = utc_to_local(date)
+    local = get_message_date_local(update)
 
     text = update.message.text
 
@@ -105,9 +109,21 @@ def echo(bot, update: Update):
             if tag in lower:
                 set_context(ctx)
 
+    append_index({
+        'kind': 'text',
+        'text': text,
+        'time': local.isoformat()
+    })
 
-    append_index(local, text)
     reply(bot, update, "ok")
+
+
+def get_message_date_local(update: Update):
+    date = update.message.date
+    if update.message.forward_date:
+        date = update.message.forward_date
+    local: datetime.datetime = utc_to_local(date)
+    return local
 
 
 def reply(bot, update, status):
