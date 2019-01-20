@@ -15,7 +15,7 @@ def get_user_info(user_id):
     if not os.path.isfile(name):
         return {}
     with open(name, mode='r') as js:
-        return json.loads(js)
+        return json.load(js)
 
 
 def save_user_info(user_id, info):
