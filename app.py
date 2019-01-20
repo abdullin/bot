@@ -78,6 +78,9 @@ def render_index():
 
     output = dir + '/index.html'
 
+    ctx_dir = os.path.abspath(get_context_dir())
+
+
     with open(output, mode='w', encoding='utf-8') as w:
         w.write('<!DOCTYPE html>\n<html>')
         w.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
@@ -89,6 +92,14 @@ def render_index():
                     lines = i['text'].split('\n')
                     for l in lines:
                         w.write('<p>' + l + '</p>\n')
+                if i['kind'] == 'photo':
+                    file = i['file']
+
+                    os.symlink(ctx_dir + "/" + file, dir + "/" + file)
+                    w.write("<img src='{0}'>\n".format(file))
+
+
+
 
         w.write('</body></html>')
 
