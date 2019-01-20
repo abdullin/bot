@@ -76,24 +76,35 @@ def ensure_context_dir():
         os.makedirs(context)
 
 
-contexts = ['maya', 'erik', 'robot']
+contexts = {
+    'maya':[ 'майя', 'maya'],
+    'erik':['эрик', 'erik'],
+    'robot':['robot'],
+}
 
 def echo(bot, update: Update):
 
 
     m : Message = update.message
 
-    local : datetime.datetime = utc_to_local(update.message.date)
+
+    date = update.message.date
+
+    if update.message.forward_date:
+        date = update.message.forward_date
+
+    local : datetime.datetime = utc_to_local(date)
 
     text = update.message.text
 
     lower = text.lower()
 
-    for ctx in contexts:
-        tag = '#'+ctx
-        if tag in lower:
-            set_context(tag)
-            
+    for ctx, tags in contexts.items():
+        for t in tags:
+            tag = '#'+t
+            if tag in lower:
+                set_context(ctx)
+
 
     append_index(local, text)
     reply(bot, update, "ok")
