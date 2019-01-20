@@ -4,20 +4,16 @@ from shutil import copyfile
 
 import db
 
-
-
-
-
-
-__root = None
+__root = 'www'
 
 
 def set_www_root(root):
     global __root
     __root = root
 
+
 def render_context(context):
-    items = db.load_context(context)
+    items = db.load_items(context)
 
     items.sort(key=lambda x: x['time'])
 
@@ -51,4 +47,3 @@ def render_context(context):
                     w.write("<img src='{0}'>\n".format(file))
 
         w.write('</body></html>')
-
