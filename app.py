@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 from itertools import groupby
+from shutil import copyfile
 
 import dateutil.parser
 import pytz
@@ -95,7 +96,9 @@ def render_index():
                 if i['kind'] == 'photo':
                     file = i['file']
 
-                    os.symlink(ctx_dir + "/" + file, dir + "/" + file)
+                    dest_file = dir + "/" + file
+                    if not os.path.exists(dest_file):
+                        copyfile(ctx_dir + "/" + file, dest_file)
                     w.write("<img src='{0}'>\n".format(file))
 
 
