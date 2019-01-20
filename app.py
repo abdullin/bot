@@ -41,14 +41,24 @@ def load_index():
     file = get_context_dir() + '/index.json'
 
     items = []
+
+    unique = set()
     with open(file, mode='r') as js:
         for line in js:
             if line:
+                if line in unique:
+                    continue
+                unique.add(line)
+
                 item = json.loads(line)
+
                 d = dateutil.parser.parse(item['time'])
 
                 item['time'] = d
                 item['date'] = d.date()
+
+
+
                 items.append(item)
     return items
 
