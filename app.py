@@ -54,7 +54,12 @@ def load_index():
 def render_index():
     items = load_index()
 
-    output = cfg.www + '/' + get_context() + '/index.html'
+    dir = cfg.www + '/' + get_context()
+
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+        
+    output = dir + '/index.html'
 
     with open(output, mode='w', encoding='utf-8') as w:
         w.write('<html><body>')
