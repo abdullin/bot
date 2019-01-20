@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import os
 
 import pytz
 from telegram import Update, Message
@@ -34,10 +35,13 @@ context = None
 
 import json
 
-def append_file(file, local, text):
+def append_index(local, text):
+    file = get_context()+'/index.json'
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
         js.write('\n')
+
+
 
 
 def photo_handler(bot, update):
@@ -46,21 +50,28 @@ def photo_handler(bot, update):
     largest_photo_id = update.message.photo[-1].file_id
     file = bot.getFile(largest_photo_id)
 
-    name = local.strftime('%Y-%m-%d') + ".jpg"
-    if context:
-        name = context + "/" + name
+    name = get_context() + '/' + local.strftime('%Y-%m-%d') + ".jpg"
+
+
     file.download(name)
-    bot.sendMessage(chat_id=update.message.chat_id, text="download succesfull")
+    reply(bot, update, 'saved')
 
-
+def get_context():
+    if context:
+        return context
+    return 'inbox'
 
 def set_context(ctx):
     global context
     context = ctx
 
+    if not os.path.exists(context):
+        os.makedirs(context)
+
+contexts = ['maya', 'erik', 'robot']
+
 def echo(bot, update: Update):
 
-    global context
 
     m : Message = update.message
 
@@ -70,35 +81,20 @@ def echo(bot, update: Update):
 
     lower = text.lower()
 
-    if '#maya' in lower:
-        set_context('maya')
-        append_file("maya.json", local, text)
-        bot.send_message(chat_id=update.message.chat_id, text='#maya')
-        return
-
-    cmd = text.split(' ', 1)[0].lower()
+    for ctx in contexts:
+        tag = '#'+ctx
+        if tag in lower:
+            set_context(tag)
+            return
 
 
+    append_index("index.json", local, text)
+    reply(bot, update, "ok")
 
 
-    if cmd == 'tm':
-        local = local + datetime.timedelta(days=1)
-        file = local.strftime('%Y-%m-%d') + ".json"
-        append_file(file, local, text)
-        bot.send_message(chat_id=update.message.chat_id, text='+tomorrow')
-        return
-    if cmd == '#bonus':
-        append_file("bonus.json", local, text)
-        bot.send_message(chat_id=update.message.chat_id, text='+bonus')
-        return
-
-
-
-    file = local.strftime('%Y-%m-%d') + ".json"
-    append_file(file, local, text)
-    bot.send_message(chat_id=update.message.chat_id, text='+today')
-
-
+def reply(bot, update, status):
+    text = '${0}> {1}'.format(context, status)
+    bot.send_message(chat_id=update.message.chat_id, text=text)
 
 
 from telegram.ext import MessageHandler, Filters
