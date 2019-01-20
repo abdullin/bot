@@ -44,7 +44,7 @@ def load_index():
     with open(file, mode='r') as js:
         for line in js:
             if line:
-                item = json.loads(line.decode())
+                item = json.loads(line)
                 d = dateutil.parser.parse(item['time'])
 
                 item['time'] = d
