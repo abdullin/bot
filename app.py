@@ -101,7 +101,8 @@ def echo(bot, update: Update):
 
 
 def reply(bot, update, status):
-    text = '${0}> {1}'.format(context, status)
+    context = get_context()
+    text = '{0}> {1}'.format(context, status)
     bot.send_message(chat_id=update.message.chat_id, text=text)
 
 
