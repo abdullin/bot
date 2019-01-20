@@ -3,6 +3,7 @@ import datetime
 import os
 from itertools import groupby
 
+import dateutil
 import pytz
 from telegram import Update, Message, Bot
 from telegram.ext import Updater, CommandHandler
@@ -45,7 +46,7 @@ def load_index():
         for line in js:
             if line:
                 item = json.loads(line)
-                d = datetime.datetime.fromisoformat(item['time'])
+                d = dateutil.parser.parse(item['time'])
 
                 item['time'] = d
                 item['date'] = d.date()
