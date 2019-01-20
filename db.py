@@ -5,12 +5,12 @@ import dateutil.parser
 __folder = os.path.abspath('data')
 
 
-def _user_file_name(id):
-    return os.path.join(__folder, "user-{0}.json".format(id))
+def _user_file_name(user_id):
+    return os.path.join(__folder, "user-{0}.json".format(user_id))
 
 
-def get_user_info(id):
-    name = _user_file_name(id)
+def get_user_info(user_id):
+    name = _user_file_name(user_id)
 
     if not os.path.isfile(name):
         return {}
@@ -18,8 +18,8 @@ def get_user_info(id):
         return json.loads(js)
 
 
-def save_user_info(id, info):
-    name = _user_file_name(id)
+def save_user_info(user_id, info):
+    name = _user_file_name(user_id)
     with open(name, mode='w', encoding='utf-8') as js:
         json.dump(info, js, ensure_ascii=False)
 

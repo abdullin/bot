@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import Update, User
 
 import db
 
@@ -29,8 +29,11 @@ def _get_message_context(update: Update):
 def get_active_context(update: Update):
     msg_context = _get_message_context(update)
 
-    user_id = update.message.from_user.id
-    info = db.get_user_info(user_id)
+    user:User = update.message.from_user
+    if not user:
+        return None
+
+    info = db.get_user_info(user.id)
     usr_context = info.get('context', None)
 
     if not msg_context:
@@ -38,5 +41,5 @@ def get_active_context(update: Update):
 
     if msg_context != usr_context:
         info['context'] = msg_context
-        db.save_user_info(id, info)
+        db.save_user_info(user.id, info)
     return msg_context
