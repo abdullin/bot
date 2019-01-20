@@ -93,8 +93,7 @@ def echo(bot, update: Update):
         tag = '#'+ctx
         if tag in lower:
             set_context(tag)
-            return
-
+            
 
     append_index(local, text)
     reply(bot, update, "ok")
