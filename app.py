@@ -1,42 +1,39 @@
 import argparse
 import datetime
 import os
+from itertools import groupby
 
 import pytz
 from telegram import Update, Message, Bot
 from telegram.ext import Updater, CommandHandler
 
-
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key',
-                    help='Current stage name: DEV, TEST or PROD. Default: DEV',required=True)
+                    help='Current stage name: DEV, TEST or PROD. Default: DEV', required=True)
 
 parser.add_argument('--www', action='store', dest='www')
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
-
 
 local_tz = pytz.timezone('Asia/Yekaterinburg')
 
 
 def utc_to_local(utc_dt):
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
-    return local_tz.normalize(local_dt) # .normalize might be unnecessary
+    return local_tz.normalize(local_dt)  # .normalize might be unnecessary
 
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 
 updater = Updater(cfg.key)
 dispatcher = updater.dispatcher
 
-
 context = None
 
 import json
-
 
 
 def load_index():
@@ -47,35 +44,46 @@ def load_index():
 
         for line in js:
             if line:
-                items.append(json.loads(line))
+                item = json.loads(line)
+                d = datetime.datetime.fromisoformat(item['time'])
+
+                item['time'] = d
+                item['date'] = d.date()
+                items.append(item)
     return items
 
 
 def render_index():
     items = load_index()
 
+    items.sort(key=lambda x: x['time'])
+
     dir = cfg.www + '/' + get_context()
 
     if not os.path.exists(dir):
         os.makedirs(dir)
-        
+
+
+
+
     output = dir + '/index.html'
 
     with open(output, mode='w', encoding='utf-8') as w:
         w.write('<html><body>')
-        for i in items:
-            if i['kind'] == 'text':
-                lines = i['text'].split('\n')
-                for l in lines:
-                    w.write('<p>' + l + '</p>')
+        for k,g in groupby(items, lambda x:x['date']):
+            w.write('<h1>{0}</h1>\n'.format(k))
+            for i in g:
+                if i['kind'] == 'text':
+                    lines = i['text'].split('\n')
+                    for l in lines:
+                        w.write('<p>' + l + '</p>\n')
 
         w.write('</body></html>')
 
 
-
 def append_index(item):
     ensure_context_dir()
-    file = get_context_dir()+'/index.json'
+    file = get_context_dir() + '/index.json'
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump(item, js, ensure_ascii=False)
         js.write('\n')
@@ -102,10 +110,12 @@ def photo_handler(bot: Bot, update: Update):
 
     reply(bot, update, 'saved')
 
+
 def get_context():
     if context:
         return context
     return 'inbox'
+
 
 def set_context(ctx):
     global context
@@ -115,6 +125,7 @@ def set_context(ctx):
 def get_context_dir():
     return 'data/' + get_context()
 
+
 def ensure_context_dir():
     dir = get_context_dir()
     if not os.path.exists(dir):
@@ -122,10 +133,11 @@ def ensure_context_dir():
 
 
 contexts = {
-    'maya':[ 'майя', 'maya'],
-    'erik':['эрик', 'erik'],
-    'robot':['robot'],
+    'maya': ['майя', 'maya'],
+    'erik': ['эрик', 'erik'],
+    'robot': ['robot'],
 }
+
 
 def echo(bot, update: Update):
     local = get_message_date_local(update)
@@ -136,7 +148,7 @@ def echo(bot, update: Update):
 
     for ctx, tags in contexts.items():
         for t in tags:
-            tag = '#'+t
+            tag = '#' + t
             if tag in lower:
                 set_context(ctx)
 
@@ -164,13 +176,12 @@ def reply(bot, update, status):
 
 
 from telegram.ext import MessageHandler, Filters
+
 echo_handler = MessageHandler(Filters.text, echo)
 dispatcher.add_handler(echo_handler)
 
-
 photo_handler = MessageHandler(Filters.photo, photo_handler)
 dispatcher.add_handler(photo_handler)
-
 
 updater.start_polling()
 updater.idle()
