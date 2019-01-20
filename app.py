@@ -30,10 +30,11 @@ updater = Updater(cfg.key)
 dispatcher = updater.dispatcher
 
 
+context = None
+
 import json
 
-def append_todo(local, text):
-    file = local.strftime('%Y-%m-%d') + ".json"
+def append_file(file, local, text):
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
         js.write('\n')
@@ -49,15 +50,33 @@ def echo(bot, update: Update):
 
     text = update.message.text
 
+    lower = text.lower()
+
+    if '#maya' in lower:
+        append_file("maya.json", local, text)
+        bot.send_message(chat_id=update.message.chat_id, text='#maya')
+        return
+
     cmd = text.split(' ', 1)[0].lower()
+
+
+
 
     if cmd == 'tm':
         local = local + datetime.timedelta(days=1)
-        append_todo(local, text)
+        file = local.strftime('%Y-%m-%d') + ".json"
+        append_file(file, local, text)
         bot.send_message(chat_id=update.message.chat_id, text='+tomorrow')
         return
+    if cmd == '#bonus':
+        append_file("bonus.json", local, text)
+        bot.send_message(chat_id=update.message.chat_id, text='+bonus')
+        return
 
-    append_todo(local, text)
+
+
+    file = local.strftime('%Y-%m-%d') + ".json"
+    append_file(file, local, text)
     bot.send_message(chat_id=update.message.chat_id, text='+today')
 
 from telegram.ext import MessageHandler, Filters
