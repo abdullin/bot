@@ -70,7 +70,7 @@ def render_index():
     output = dir + '/index.html'
 
     with open(output, mode='w', encoding='utf-8') as w:
-        w.write('<html><body>')
+        w.write('<!DOCTYPE html>\n<html><body>')
         for k,g in groupby(items, lambda x:x['date']):
             w.write('<h1>{0}</h1>\n'.format(k))
             for i in g:
@@ -171,8 +171,7 @@ def get_message_date_local(update: Update):
 
 
 def reply(bot, update, status):
-    context = get_context()
-    text = '{0}> {1}'.format(context, status)
+    text = '{0}> {1}'.format(get_context(), status)
     bot.send_message(chat_id=update.message.chat_id, text=text)
 
 
