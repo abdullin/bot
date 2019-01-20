@@ -85,6 +85,7 @@ def render_index():
     with open(output, mode='w', encoding='utf-8') as w:
         w.write('<!DOCTYPE html>\n<html>')
         w.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
+        w.write('<link rel="stylesheet" type="text/css" href="/style.css">')
         w.write('<body>')
         for k,g in groupby(items, lambda x:x['date']):
             w.write('<h1>{0}</h1>\n'.format(k))
