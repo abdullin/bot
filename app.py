@@ -10,6 +10,8 @@ from telegram.ext import Updater, CommandHandler
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key',
                     help='Current stage name: DEV, TEST or PROD. Default: DEV',required=True)
+
+parser.add_argument('--www', action='store', dest='www')
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
 
@@ -37,6 +39,34 @@ import json
 
 
 
+def load_index():
+    file = get_context_dir() + '/index.json'
+
+    items = []
+    with open(file, mode='r', encoding='utf-8') as js:
+
+        for line in js:
+            if line:
+                items.append(json.loads(line))
+    return items
+
+
+def render_index():
+    items = load_index()
+
+    output = cfg.www + '/' + get_context() + '/index.html'
+
+    with open(output, mode='w', encoding='utf-8') as w:
+        w.write('<html><body>')
+        for i in items:
+            if i['kind'] == 'text':
+                lines = i['text'].split('\n')
+                for l in lines:
+                    w.write('<p>' + l + '</p>')
+
+        w.write('</body></html>')
+
+
 
 def append_index(item):
     ensure_context_dir()
@@ -44,6 +74,7 @@ def append_index(item):
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump(item, js, ensure_ascii=False)
         js.write('\n')
+    render_index()
 
 
 def photo_handler(bot: Bot, update: Update):
