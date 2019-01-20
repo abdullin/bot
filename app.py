@@ -40,16 +40,10 @@ import json
 
 def append_index(item):
     ensure_context_dir()
-    file = get_context()+'/index.json'
+    file = get_context_dir()+'/index.json'
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump(item, js, ensure_ascii=False)
         js.write('\n')
-
-
-
-
-
-
 
 
 def photo_handler(bot: Bot, update: Update):
@@ -60,7 +54,7 @@ def photo_handler(bot: Bot, update: Update):
     file = bot.getFile(largest_photo_id)
 
     jpg_ = local.strftime('%Y-%m-%d_%H%M%S') + ".jpg"
-    name = get_context() + '/' + jpg_
+    name = get_context_dir() + '/' + jpg_
 
     file.download(name)
 
@@ -82,12 +76,13 @@ def set_context(ctx):
     context = ctx
 
 
-
+def get_context_dir():
+    return 'data/' + get_context()
 
 def ensure_context_dir():
-    context = get_context()
-    if not os.path.exists(context):
-        os.makedirs(context)
+    dir = get_context_dir()
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
 
 contexts = {
