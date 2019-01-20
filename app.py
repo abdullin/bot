@@ -88,7 +88,7 @@ def echo(bot, update: Update):
             return
 
 
-    append_index("index.json", local, text)
+    append_index(local, text)
     reply(bot, update, "ok")
 
 
