@@ -117,9 +117,9 @@ def append_index(item):
     render_index()
 
 
-def photo_handler(bot: Bot, update: Update):
+def handle_photo(bot: Bot, update: Update):
+
     ensure_context_dir()
-    m: Message = update.message
     local = get_message_date_local(update)
     largest_photo_id = update.message.photo[-1].file_id
     file = bot.getFile(largest_photo_id)
@@ -132,7 +132,8 @@ def photo_handler(bot: Bot, update: Update):
     append_index({
         'kind': 'photo',
         'file': jpg_,
-        'time': local.isoformat()
+        'time': local.isoformat(),
+        'raw': update.to_dict(),
     })
 
     reply(bot, update, 'saved')
@@ -166,7 +167,7 @@ contexts = {
 }
 
 
-def echo(bot, update: Update):
+def handle_echo(bot, update: Update):
     local = get_message_date_local(update)
 
     text = update.message.text
@@ -178,11 +179,12 @@ def echo(bot, update: Update):
             tag = '#' + t
             if tag in lower:
                 set_context(ctx)
-
+            
     append_index({
         'kind': 'text',
         'text': text,
-        'time': local.isoformat()
+        'time': local.isoformat(),
+        'raw': update.to_dict(),
     })
 
     reply(bot, update, "ok")
@@ -203,11 +205,8 @@ def reply(bot, update, status):
 
 from telegram.ext import MessageHandler, Filters
 
-echo_handler = MessageHandler(Filters.text, echo)
-dispatcher.add_handler(echo_handler)
-
-photo_handler = MessageHandler(Filters.photo, photo_handler)
-dispatcher.add_handler(photo_handler)
+dispatcher.add_handler(MessageHandler(Filters.text, handle_echo))
+dispatcher.add_handler(MessageHandler(Filters.photo, handle_photo))
 
 updater.start_polling()
 updater.idle()
