@@ -40,9 +40,27 @@ def append_file(file, local, text):
         js.write('\n')
 
 
+def photo_handler(bot, update):
+    m: Message = update.message
+    local: datetime.datetime = utc_to_local(update.message.date)
+    largest_photo_id = update.message.photo[-1].file_id
+    file = bot.getFile(largest_photo_id)
 
+    name = local.strftime('%Y-%m-%d') + ".jpg"
+    if context:
+        name = context + "/" + name
+    file.download(name)
+    bot.sendMessage(chat_id=update.message.chat_id, text="download succesfull")
+
+
+
+def set_context(ctx):
+    global context
+    context = ctx
 
 def echo(bot, update: Update):
+
+    global context
 
     m : Message = update.message
 
@@ -53,6 +71,7 @@ def echo(bot, update: Update):
     lower = text.lower()
 
     if '#maya' in lower:
+        set_context('maya')
         append_file("maya.json", local, text)
         bot.send_message(chat_id=update.message.chat_id, text='#maya')
         return
@@ -79,9 +98,17 @@ def echo(bot, update: Update):
     append_file(file, local, text)
     bot.send_message(chat_id=update.message.chat_id, text='+today')
 
+
+
+
 from telegram.ext import MessageHandler, Filters
 echo_handler = MessageHandler(Filters.text, echo)
 dispatcher.add_handler(echo_handler)
+
+
+photo_handler = MessageHandler(Filters.photo, photo_handler)
+dispatcher.add_handler(photo_handler)
+
 
 updater.start_polling()
 updater.idle()
