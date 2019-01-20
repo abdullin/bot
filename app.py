@@ -3,7 +3,7 @@ import datetime
 import os
 from itertools import groupby
 
-import dateutil
+import dateutil.parser
 import pytz
 from telegram import Update, Message, Bot
 from telegram.ext import Updater, CommandHandler
