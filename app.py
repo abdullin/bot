@@ -41,7 +41,7 @@ def load_index():
     file = get_context_dir() + '/index.json'
 
     items = []
-    with open(file, mode='r', encoding='raw_unicode_escape') as js:
+    with open(file, mode='r') as js:
         for line in js:
             if line:
                 item = json.loads(line.decode())
@@ -69,7 +69,9 @@ def render_index():
     output = dir + '/index.html'
 
     with open(output, mode='w', encoding='utf-8') as w:
-        w.write('<!DOCTYPE html>\n<html><body>')
+        w.write('<!DOCTYPE html>\n<html>')
+        w.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
+        w.write('<body>')
         for k,g in groupby(items, lambda x:x['date']):
             w.write('<h1>{0}</h1>\n'.format(k))
             for i in g:
