@@ -36,6 +36,7 @@ context = None
 import json
 
 def append_index(local, text):
+    ensure_context_dir()
     file = get_context()+'/index.json'
     with open(file, mode='a+', encoding='utf-8') as js:
         json.dump({'text': text, 'time': local.isoformat()}, js, ensure_ascii=False)
@@ -45,6 +46,7 @@ def append_index(local, text):
 
 
 def photo_handler(bot, update):
+    ensure_context_dir()
     m: Message = update.message
     local: datetime.datetime = utc_to_local(update.message.date)
     largest_photo_id = update.message.photo[-1].file_id
@@ -65,8 +67,14 @@ def set_context(ctx):
     global context
     context = ctx
 
+
+
+
+def ensure_context_dir():
+    context = get_context()
     if not os.path.exists(context):
         os.makedirs(context)
+
 
 contexts = ['maya', 'erik', 'robot']
 
