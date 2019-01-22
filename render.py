@@ -71,7 +71,7 @@ def render_context(context):
                     if not picked:
                         picked = i['photos'][-1]
 
-                    w.write("<img src='{0}'>\n".format(picked['file']))
+                    w.write("<img src='{0}' class='img-fluid'>\n".format(picked['file']))
                 w.write('</div></div>') # row
 
         w.write('</div>\n')
