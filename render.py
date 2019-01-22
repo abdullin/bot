@@ -49,11 +49,14 @@ def render_context(context):
                     for l in lines:
                         w.write('<p>' + l + '</p>\n')
                 if i['kind'] == 'photo':
-                    file = i['file']
 
-                    dest_file = www_dir + "/" + file
-                    if not os.path.exists(dest_file):
-                        copyfile(data_dir + "/" + file, dest_file)
-                    w.write("<img src='{0}'>\n".format(file))
+                    for photo in i['photos']:
+
+                        file = photo['file']
+
+                        dest_file = www_dir + "/" + file
+                        if not os.path.exists(dest_file):
+                            copyfile(data_dir + "/" + file, dest_file)
+                    w.write("<img src='{0}'>\n".format(i['photos'][0]['file']))
 
         w.write('</body></html>')

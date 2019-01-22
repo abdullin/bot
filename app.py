@@ -3,7 +3,7 @@ import datetime
 import os
 
 import pytz
-from telegram import Update, Bot
+from telegram import Update, Bot, PhotoSize
 from telegram.ext import Updater
 
 import logging
@@ -11,13 +11,10 @@ import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-
 import db
 import render
 
 import context as ctx
-
-
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
@@ -25,7 +22,6 @@ parser.add_argument('--www', action='store', dest='www', required=True)
 
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
-
 
 render.set_www_root(cfg.www)
 
@@ -37,31 +33,36 @@ def utc_to_local(utc_dt):
     return local_tz.normalize(local_dt)  # .normalize might be unnecessary
 
 
-
 updater = Updater(cfg.key)
 dispatcher = updater.dispatcher
 
 
 def handle_photo(bot: Bot, update: Update):
-    context =  ctx.get_active(update)
+    context = ctx.get_active(update)
 
     if not context:
         reply(bot, update, context, "need context!")
         return
 
     local = get_message_date_local(update)
-    largest_photo_id = update.message.photo[-1].file_id
-    file = bot.getFile(largest_photo_id)
 
-    jpg_ = local.strftime('%Y-%m-%d_%H%M%S') + ".jpg"
+    p: PhotoSize
+    prefix = local.strftime('%Y-%m-%d_%H%M%S')
 
-    name = os.path.join(db.get_dir(context), jpg_)
+    photos = []
+    for p in update.message.photo:
+        id = p.file_id
+        file = bot.get_file(id)
 
-    file.download(name)
+        name = "{0}_{1}x{2}.jpg".format(prefix, p.height, p.width)
+        photos.append({'file': name, 'height': p.height, 'width': p.width})
+        name = os.path.join(db.get_dir(context), name)
+
+        file.download(name)
 
     db.append_item(context, {
         'kind': 'photo',
-        'file': jpg_,
+        'photos': photos,
         'time': local.isoformat(),
         'raw': update.to_dict(),
     })
