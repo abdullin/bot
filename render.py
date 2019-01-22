@@ -43,19 +43,25 @@ def render_context(context):
             '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">\n')
         w.write('</head>')
         w.write('<body>')
+
+        w.write('<h1>{0}</h1>\n'.format(context))
         w.write('<div class="container">')
 
         for k, g in groupby(items, lambda x: x['date']):
 
-            w.write('<h1>{0}</h1>\n'.format(k))
+            w.write('<h2>{0}</h2>\n'.format(k))
             for i in g:
                 w.write('<div class="row"><div class="col-12 justify-content-center col-md-8">\n')
+                w.write('<div class="card">')
 
                 if i['kind'] == 'text':
+                    w.write('<div class="card-body">')
                     lines = i['text'].split('\n')
                     for l in lines:
-                        w.write('<p>' + l + '</p>\n')
+                        w.write('<p class="card-text">' + l + '</p>\n')
+                    w.write('</div>\n') # card-body
                 if i['kind'] == 'photo':
+
 
                     picked = None
                     for photo in i['photos']:
@@ -71,7 +77,8 @@ def render_context(context):
                     if not picked:
                         picked = i['photos'][-1]
 
-                    w.write("<img src='{0}' class='img-fluid'>\n".format(picked['file']))
+                    w.write("<img src='{0}' class='card-img-top'>\n".format(picked['file']))
+                w.write('</div>') #card
                 w.write('</div></div>') # row
 
         w.write('</div>\n')
