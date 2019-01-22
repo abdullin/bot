@@ -61,7 +61,7 @@ def render_context(context):
                     for photo in i['photos']:
                         width = photo['width']
 
-                        if width >= 800:
+                        if not picked and width >= 800:
                             picked = photo
 
                         file = photo['file']
