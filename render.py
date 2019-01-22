@@ -17,6 +17,7 @@ def render_all():
     for c in context.list():
         render_context(c)
 
+
 def render_context(context):
     items = db.load_items(context)
 
@@ -38,7 +39,8 @@ def render_context(context):
         w.write('<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n')
 
         w.write('<link rel="stylesheet" type="text/css" href="/style.css">\n')
-        w.write('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">\n')
+        w.write(
+            '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">\n')
         w.write('</head>/n')
         w.write('<body>')
         for k, g in groupby(items, lambda x: x['date']):
@@ -50,13 +52,20 @@ def render_context(context):
                         w.write('<p>' + l + '</p>\n')
                 if i['kind'] == 'photo':
 
+                    picked = None
                     for photo in i['photos']:
+                        width = photo['width']
+
+                        if width >= 800:
+                            picked = photo
 
                         file = photo['file']
-
                         dest_file = www_dir + "/" + file
                         if not os.path.exists(dest_file):
                             copyfile(data_dir + "/" + file, dest_file)
-                    w.write("<img src='{0}'>\n".format(i['photos'][0]['file']))
+                    if not picked:
+                        picked = i['photos'][-1]
+
+                    w.write("<img src='{0}'>\n".format(picked['file']))
 
         w.write('</body></html>')

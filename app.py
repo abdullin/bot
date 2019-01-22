@@ -47,6 +47,7 @@ def handle_photo(bot: Bot, update: Update):
     local = get_message_date_local(update)
 
     p: PhotoSize
+
     prefix = local.strftime('%Y-%m-%d_%H%M%S')
 
     photos = []
@@ -54,7 +55,7 @@ def handle_photo(bot: Bot, update: Update):
         id = p.file_id
         file = bot.get_file(id)
 
-        name = "{0}_{1}x{2}.jpg".format(prefix, p.height, p.width)
+        name = "{0}_{3}_{1}x{2}.jpg".format(prefix, p.height, p.width, update.message.message_id)
         photos.append({'file': name, 'height': p.height, 'width': p.width})
         name = os.path.join(db.get_dir(context), name)
 
