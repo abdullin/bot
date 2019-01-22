@@ -41,11 +41,16 @@ def render_context(context):
         w.write('<link rel="stylesheet" type="text/css" href="/style.css">\n')
         w.write(
             '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">\n')
-        w.write('</head>/n')
+        w.write('</head>')
         w.write('<body>')
+        w.write('<div class="container">')
+
         for k, g in groupby(items, lambda x: x['date']):
+
             w.write('<h1>{0}</h1>\n'.format(k))
             for i in g:
+                w.write('<div class="row"><div class="col-12 justify-content-center col-md-8">\n')
+
                 if i['kind'] == 'text':
                     lines = i['text'].split('\n')
                     for l in lines:
@@ -67,5 +72,7 @@ def render_context(context):
                         picked = i['photos'][-1]
 
                     w.write("<img src='{0}'>\n".format(picked['file']))
+                w.write('</div></div>') # row
 
+        w.write('</div>\n')
         w.write('</body></html>')
