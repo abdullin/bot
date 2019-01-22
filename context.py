@@ -9,6 +9,10 @@ _contexts = {
 }
 
 
+def list():
+    return _contexts.keys()
+
+
 def _get_message_context(update: Update):
     if not update.message:
         return None
@@ -26,7 +30,7 @@ def _get_message_context(update: Update):
     return None
 
 
-def get_active_context(update: Update):
+def get_active(update: Update):
     msg_context = _get_message_context(update)
 
     user:User = update.message.from_user

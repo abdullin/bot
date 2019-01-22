@@ -6,9 +6,18 @@ import pytz
 from telegram import Update, Bot
 from telegram.ext import Updater
 
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
 import db
 import render
-from context import get_active_context
+
+import context as ctx
+
+
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
@@ -28,17 +37,13 @@ def utc_to_local(utc_dt):
     return local_tz.normalize(local_dt)  # .normalize might be unnecessary
 
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 updater = Updater(cfg.key)
 dispatcher = updater.dispatcher
 
 
 def handle_photo(bot: Bot, update: Update):
-    context = get_active_context(update)
+    context =  ctx.get_active(update)
 
     if not context:
         reply(bot, update, context, "need context!")
@@ -67,7 +72,7 @@ def handle_photo(bot: Bot, update: Update):
 
 
 def handle_text(bot: Bot, update: Update):
-    context = get_active_context(update)
+    context = ctx.get_active(update)
 
     if not context:
         reply(bot, update, context, "need context!")
@@ -102,6 +107,8 @@ def reply(bot, update, context, status):
 
 
 from telegram.ext import MessageHandler, Filters
+
+render.render_all()
 
 dispatcher.add_handler(MessageHandler(Filters.text, handle_text))
 dispatcher.add_handler(MessageHandler(Filters.photo, handle_photo))

@@ -2,6 +2,7 @@ import os
 from itertools import groupby
 from shutil import copyfile
 
+import context
 import db
 
 __root = 'www'
@@ -11,6 +12,10 @@ def set_www_root(root):
     global __root
     __root = root
 
+
+def render_all():
+    for c in context.list():
+        render_context(c)
 
 def render_context(context):
     items = db.load_items(context)
