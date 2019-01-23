@@ -46,7 +46,7 @@ def render_context(context):
 
         w.write('<div class="container">')
         w.write('<h1>{0}</h1>\n'.format(context))
-        
+
         for k, g in groupby(items, lambda x: x['date']):
 
             w.write('<h2>{0}</h2>\n'.format(k))
