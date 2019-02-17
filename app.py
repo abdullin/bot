@@ -2,11 +2,10 @@ import argparse
 import datetime
 import json
 import os
-from os import path
+from os import path, subprocess
 
 import pytz
-import telegram
-from telegram import Update, Bot, PhotoSize
+from telegram import Update, Bot
 from telegram.ext import Updater
 
 import logging
@@ -73,9 +72,23 @@ def handle_message(bot: Bot, update: Update):
 
         db.append_item(path.join(cfg.root, folder), em)
 
-        reply(bot, "{0}> {1}".format(folder, update.update_id))
+        exec = chat.pop('exec', None)
+
+        if not exec:
+            reply(bot, "{0}> saved {1}".format(folder, update.update_id))
+            return
+
+        result = subprocess.run(exec, stdout=subprocess.PIPE)
+        output = result.stdout.decode('utf-8')
+        if len(output > 1000):
+            output = output[-1000:]
+        reply(bot, "{0}> {1}".format(folder, output))
+
     except Exception as e:
         reply(bot, str(e))
+        return
+
+
 
 
 def get_message_date_local(update: Update):
@@ -93,7 +106,11 @@ def reply(bot, status, chat_id=None):
 
 from telegram.ext import MessageHandler, Filters
 
-dispatcher.add_handler(MessageHandler(Filters.all, handle_message, allow_edited=True, message_updates=True))
+dispatcher.add_handler(MessageHandler(
+    Filters.all,
+    handle_message,
+    allow_edited=True,
+    message_updates=True))
 
 updater.start_polling()
 updater.idle()
