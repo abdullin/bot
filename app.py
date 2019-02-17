@@ -86,13 +86,13 @@ def handle_message(bot: Bot, update: Update):
         index_dir = path.join(cfg.root, folder)
 
 
-        doc = em.get("document", None)
-
-        if doc:
-            save_file(doc, index_dir, context)
-            thumb = doc.get('thumb')
-            if thumb:
-                save_file(thumb, index_dir, context)
+        for kind in ['document', 'video']:
+            resource = em.get(kind, None)
+            if resource:
+                save_file(resource, index_dir, context)
+                thumb = resource.get('thumb')
+                if thumb:
+                    save_file(thumb, index_dir, context)
 
         photo = em.get("photo", None)
         if photo:
