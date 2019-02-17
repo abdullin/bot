@@ -169,5 +169,5 @@ def stop_and_restart():
 
 updater.start_polling()
 # working around weird behavior on vpn network changes
-Thread(target=stop_and_restart).start()
+Thread(target=stop_and_restart, daemon=True).start()
 updater.idle()
