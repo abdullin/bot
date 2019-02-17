@@ -18,14 +18,14 @@ import db
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
-parser.add_argument('--root', action='store', dest='root', required=True)
+parser.add_argument('--store', action='store', dest='root', required=True)
 
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
 
 
 
-with open(os.path.join(cfg.root, "telegram.json")) as f:
+with open(os.path.join(cfg.store, "telegram.json")) as f:
     tg_cfg = json.load(f)
 
 
