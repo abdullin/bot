@@ -62,7 +62,7 @@ def handle_message(bot: Bot, update: Update):
         em = dict.pop("_effective_message", None)
 
         # cleanup empty arrays
-        for k in em.keys():
+        for k in list(em):
             if not em[k]:
                 em.pop(k)
 
