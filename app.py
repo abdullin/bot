@@ -66,7 +66,7 @@ def handle_message(bot: Bot, update: Update):
             if not em[k]:
                 em.pop(k)
 
-        dict.pop("chat", None)
+        em.pop("chat", None)
 
         em["_time"] = local.isoformat()
         em["update_id"] = update.update_id
