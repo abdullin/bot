@@ -66,7 +66,7 @@ def handle_message(bot: Bot, update: Update):
         'raw': update.to_dict(),
     })
 
-    reply(bot, update, 'ok')
+    reply(bot, 'ok')
 
 def get_message_date_local(update: Update):
     date = update.message.date
