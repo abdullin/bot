@@ -45,6 +45,7 @@ bot = updater.bot
 
 
 def handle_message(bot: Bot, update: Update):
+    context = ""
     try:
 
         message = update.effective_message
@@ -56,6 +57,8 @@ def handle_message(bot: Bot, update: Update):
 
         chat = tg_cfg['chats'][chat_id]
         folder = chat['folder']
+
+        context = folder
 
         local = get_message_date_local(update)
 
@@ -77,17 +80,17 @@ def handle_message(bot: Bot, update: Update):
         exec = chat.pop('exec', None)
 
         if not exec:
-            reply(bot, "{0}> saved {1}".format(folder, update.update_id))
+            reply(bot, "{0}> saved {1}".format(context, update.update_id))
             return
 
         result = subprocess.run(exec, stdout=subprocess.PIPE)
         output = result.stdout.decode('utf-8')
-        if len(output > 1000):
+        if len(output) > 1000:
             output = output[-1000:]
-        reply(bot, "{0}> {1}".format(folder, output))
+        reply(bot, "{0}> {1}".format(context, output))
 
     except:
-        reply(bot, "{0}> {1}".format(folder, traceback.format_exc()))
+        reply(bot, "{0}> {1}".format(context, traceback.format_exc()))
         return
 
 
