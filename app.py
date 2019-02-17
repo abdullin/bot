@@ -18,7 +18,7 @@ import db
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
-parser.add_argument('--store', action='store', dest='root', required=True)
+parser.add_argument('--store', action='store', dest='store', required=True)
 
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
