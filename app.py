@@ -30,6 +30,8 @@ with open(os.path.join(cfg.root, "telegram.json")) as f:
     tg_cfg = json.load(f)
 
 
+reply_chat_id = tg_cfg['reply_chat_id']
+
 
 local_tz = pytz.timezone('Asia/Yekaterinburg')
 
@@ -52,7 +54,7 @@ def handle_message(bot: Bot, update: Update):
     chat_id = str(update.message.chat_id)
 
     if not chat_id in tg_cfg['chats']:
-        reply(bot, update, "Chat {0} not registered".format(chat_id))
+        reply(bot, "Chat {0} not registered".format(chat_id), update.message.chat_id)
         return
 
     chat =  tg_cfg['chats'][chat_id]
@@ -74,9 +76,8 @@ def get_message_date_local(update: Update):
     return local
 
 
-def reply(bot, update, status):
-
-    bot.send_message(chat_id=update.message.chat_id, text=status)
+def reply(bot, status, chat_id = None):
+    bot.send_message(chat_id=chat_id or reply_chat_id, text=status)
 
 
 from telegram.ext import MessageHandler, Filters
