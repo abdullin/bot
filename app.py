@@ -51,26 +51,33 @@ bot = updater.bot
 
 def handle_message(bot: Bot, update: Update):
 
-    chat_id = str(update.message.chat_id)
+    try:
 
-    if not chat_id in tg_cfg['chats']:
-        reply(bot, "Chat {0} not registered".format(chat_id), update.message.chat_id)
-        return
 
-    chat =  tg_cfg['chats'][chat_id]
-    folder = chat['folder']
 
-    local = get_message_date_local(update)
+        message = update.effective_message
+        chat_id = str(message.chat_id)
 
-    dict = update.to_dict()
-    dict.pop("_effective_message", None)
-    dict.pop("chat", None)
+        if not chat_id in tg_cfg['chats']:
+            reply(bot, "Chat {0} not registered".format(chat_id), message.chat_id)
+            return
 
-    dict["_time"] = local.isoformat()
+        chat =  tg_cfg['chats'][chat_id]
+        folder = chat['folder']
 
-    db.append_item(path.join(cfg.root,folder), dict)
+        local = get_message_date_local(update)
 
-    reply(bot, 'ok')
+        dict = update.to_dict()
+        # dict.pop("_effective_message", None)
+        dict.pop("chat", None)
+
+        dict["_time"] = local.isoformat()
+
+        db.append_item(path.join(cfg.root,folder), dict)
+
+        reply(bot, 'ok')
+    except Exception as e:
+        reply(bot, str(e))
 
 def get_message_date_local(update: Update):
     date = update.message.date
@@ -86,14 +93,8 @@ def reply(bot, status, chat_id = None):
 
 from telegram.ext import MessageHandler, Filters
 
-dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
+dispatcher.add_handler(MessageHandler(Filters.all, handle_message, allow_edited=True, message_updates=True))
 
 
-def see_edit(bot: Bot, update: Update):
-    print("EDIT!")
-    pass
-
-
-dispatcher.add_handler(MessageHandler(Filters.text, see_edit, allow_edited=True, message_updates=True))
 updater.start_polling()
 updater.idle()
