@@ -80,9 +80,10 @@ def handle_message(bot: Bot, update: Update):
         reply(bot, str(e))
 
 def get_message_date_local(update: Update):
-    date = update.message.date
-    if update.message.forward_date:
-        date = update.message.forward_date
+    message = update.effective_message
+    date = message.date
+    if message.forward_date:
+        date = message.forward_date
     local: datetime.datetime = utc_to_local(date)
     return local
 
