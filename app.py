@@ -30,7 +30,7 @@ cfg, unknown = parser.parse_known_args()
 with open(os.path.join(cfg.root, "telegram.json")) as f:
     tg_cfg = json.load(f)
 
-reply_chat_id = tg_cfg['reply_chat_id']
+reply_chat_id = int(tg_cfg['reply_chat_id'])
 
 local_tz = pytz.timezone('Asia/Yekaterinburg')
 
