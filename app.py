@@ -2,7 +2,8 @@ import argparse
 import datetime
 import json
 import os
-from os import path, subprocess
+from os import path
+import subprocess
 
 import pytz
 from telegram import Update, Bot
