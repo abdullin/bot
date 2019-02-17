@@ -73,7 +73,7 @@ def handle_message(bot: Bot, update: Update):
 
         db.append_item(path.join(cfg.root, folder), em)
 
-        reply(bot, 'ok')
+        reply(bot, "{0}> {1}".format(folder, update.update_id))
     except Exception as e:
         reply(bot, str(e))
 
