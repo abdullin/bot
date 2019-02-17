@@ -75,7 +75,8 @@ def handle_message(bot: Bot, update: Update):
         em["_time"] = local.isoformat()
         em["update_id"] = update.update_id
 
-        db.append_item(path.join(cfg.root, folder), em)
+        index_dir = path.join(cfg.root, folder)
+        db.append_item(index_dir, em)
 
         exec = chat.get('exec', None)
 
@@ -83,7 +84,7 @@ def handle_message(bot: Bot, update: Update):
             reply(bot, "{0}> saved {1}".format(context, update.update_id))
             return
 
-        result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=path.abspath(folder))
+        result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=path.abspath(index_dir))
         output = result.stdout.decode('utf-8')
         if len(output) > 1000:
             output = output[-1000:]
