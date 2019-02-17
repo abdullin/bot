@@ -49,7 +49,7 @@ bot = updater.bot
 
 def handle_message(bot: Bot, update: Update):
 
-    chat_id = update.message.chat_id
+    chat_id = str(update.message.chat_id)
 
     if not chat_id in tg_cfg['chats']:
         reply(bot, update, "Chat {0} not registered".format(chat_id))
