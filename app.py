@@ -87,7 +87,7 @@ def handle_message(bot: Bot, update: Update):
         output = result.stdout.decode('utf-8')
         if len(output) > 1000:
             output = output[-1000:]
-        reply(bot, "{0}> exec {1}: {2}".format(context, result.args, output))
+        reply(bot, "{0}> exec {1} ret {2}: {3}".format(context, result.args, result.returncode, output))
 
     except:
         reply(bot, "{0}> err {1}".format(context, traceback.format_exc()))
