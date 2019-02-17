@@ -115,8 +115,8 @@ def handle_message(bot: Bot, update: Update):
 
         result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=path.abspath(index_dir))
         output = result.stdout.decode('utf-8')
-        if len(output) > 1000:
-            output = output[-1000:]
+        if len(output) > 2000:
+            output = output[-2000:]
         reply(bot, "{0}> exec {1} ret {2}: {3}".format(context, result.args, result.returncode, output))
 
     except:
