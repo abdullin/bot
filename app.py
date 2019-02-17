@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 import os
+from os import path
 
 import pytz
 import telegram
@@ -18,14 +19,14 @@ import db
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
-parser.add_argument('--store', action='store', dest='store', required=True)
+parser.add_argument('--store', action='store', dest='root', required=True)
 
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
 
 
 
-with open(os.path.join(cfg.store, "telegram.json")) as f:
+with open(os.path.join(cfg.root, "telegram.json")) as f:
     tg_cfg = json.load(f)
 
 
@@ -39,10 +40,11 @@ def utc_to_local(utc_dt):
 
 
 
-bot = telegram.Bot(token=cfg.key)
+#bot = telegram.Bot(token=cfg.key)
 
-updater = Updater(bot=bot)
+updater = Updater(token=cfg.key)
 dispatcher = updater.dispatcher
+bot = updater.bot
 
 
 def handle_message(bot: Bot, update: Update):
@@ -57,7 +59,7 @@ def handle_message(bot: Bot, update: Update):
     folder = chat['folder']
 
     local = get_message_date_local(update)
-    db.append_item(folder, {
+    db.append_item(path.join(cfg.root,folder), {
         'time': local.isoformat(),
         'raw': update.to_dict(),
     })
