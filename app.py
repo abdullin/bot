@@ -77,13 +77,13 @@ def handle_message(bot: Bot, update: Update):
 
         db.append_item(path.join(cfg.root, folder), em)
 
-        exec = chat.pop('exec', None)
+        exec = chat.get('exec', None)
 
         if not exec:
             reply(bot, "{0}> saved {1}".format(context, update.update_id))
             return
 
-        result = subprocess.run(exec, stdout=subprocess.PIPE)
+        result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         output = result.stdout.decode('utf-8')
         if len(output) > 1000:
             output = output[-1000:]
