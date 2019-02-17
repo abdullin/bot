@@ -61,10 +61,14 @@ def handle_message(bot: Bot, update: Update):
     folder = chat['folder']
 
     local = get_message_date_local(update)
-    db.append_item(path.join(cfg.root,folder), {
-        'time': local.isoformat(),
-        'raw': update.to_dict(),
-    })
+
+    dict = update.to_dict()
+    dict.pop("_effective_message", None)
+    dict.pop("chat", None)
+
+    dict["_time"] = local.isoformat()
+
+    db.append_item(path.join(cfg.root,folder), dict)
 
     reply(bot, 'ok')
 
