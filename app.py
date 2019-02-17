@@ -94,6 +94,11 @@ def handle_message(bot: Bot, update: Update):
             if thumb:
                 save_file(thumb, index_dir, context)
 
+        photo = em.get("photo", None)
+        if photo:
+            save_file(photo[-1], index_dir, context)
+
+
 
         em["_time"] = local.isoformat()
         em["update_id"] = update.update_id
