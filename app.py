@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 import os
+import traceback
 from os import path
 import subprocess
 
@@ -85,8 +86,8 @@ def handle_message(bot: Bot, update: Update):
             output = output[-1000:]
         reply(bot, "{0}> {1}".format(folder, output))
 
-    except Exception as e:
-        reply(bot, str(e))
+    except:
+        reply(bot, "{0}> {1}".format(folder, traceback.format_exc()))
         return
 
 
