@@ -88,5 +88,12 @@ from telegram.ext import MessageHandler, Filters
 
 dispatcher.add_handler(MessageHandler(Filters.all, handle_message, edited_updates=True, message_updates=True))
 
+
+def see_edit(bot: Bot, update: Update):
+    print("EDIT!")
+    pass
+
+
+dispatcher.add_handler(MessageHandler(Filters.text, see_edit, allow_edited=True))
 updater.start_polling()
 updater.idle()
