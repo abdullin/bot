@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import traceback
@@ -7,7 +8,7 @@ from os import path
 import subprocess
 
 import pytz
-from telegram import Update, Bot
+from telegram import Update, Bot, Document
 from telegram.ext import Updater
 
 import logging
@@ -44,6 +45,15 @@ dispatcher = updater.dispatcher
 bot = updater.bot
 
 
+def sha256sum(filename):
+    h  = hashlib.sha1()
+    b  = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(filename, 'rb', buffering=0) as f:
+        for n in iter(lambda : f.readinto(mv), 0):
+            h.update(mv[:n])
+    return h.hexdigest()
+
 def handle_message(bot: Bot, update: Update):
     context = ""
     try:
@@ -63,6 +73,7 @@ def handle_message(bot: Bot, update: Update):
         local = get_message_date_local(update)
 
         dict = update.to_dict()
+
         em = dict.pop("_effective_message", None)
 
         # cleanup empty arrays
@@ -72,10 +83,21 @@ def handle_message(bot: Bot, update: Update):
 
         em.pop("chat", None)
 
+        index_dir = path.join(cfg.root, folder)
+
+
+        doc = em.get("document", None)
+
+        if doc:
+            save_file(doc, index_dir, context)
+            thumb = doc.get('thumb')
+            if thumb:
+                save_file(thumb, index_dir, context)
+
+
         em["_time"] = local.isoformat()
         em["update_id"] = update.update_id
 
-        index_dir = path.join(cfg.root, folder)
         db.append_item(index_dir, em)
 
         exec = chat.get('exec', None)
@@ -95,6 +117,16 @@ def handle_message(bot: Bot, update: Update):
         return
 
 
+def save_file(doc, index_dir, context):
+    file_id = doc['file_id']
+    file = bot.get_file(file_id)
+    temp_path = path.join(index_dir, "download.tmp")
+    file.download(custom_path=temp_path)
+    hash = sha256sum(temp_path)
+
+    doc['sha1'] = hash
+    os.rename(temp_path, path.join(index_dir, hash))
+    reply(bot, "{0}> saved".format(context))
 
 
 def get_message_date_local(update: Update):

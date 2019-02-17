@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import dateutil.parser
@@ -16,6 +17,7 @@ def append_item(dir, item):
     with open(index, mode='a+', encoding='utf-8') as js:
         json.dump(item, js, ensure_ascii=False)
         js.write('\n')
+
 
 
 def load_items(dir):
