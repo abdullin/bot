@@ -3,9 +3,11 @@ import datetime
 import hashlib
 import json
 import os
+import sys
 import traceback
 from os import path
 import subprocess
+from threading import Thread
 
 import pytz
 from telegram import Update, Bot, Document
@@ -155,5 +157,17 @@ dispatcher.add_handler(MessageHandler(
     allow_edited=True,
     message_updates=True))
 
+
+def stop_and_restart():
+    """Gracefully stop the Updater and replace the current process with a new one"""
+    import time
+    time.sleep(3600 * 2)
+    print("Restarting the updater")
+    updater.stop()
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
+
 updater.start_polling()
+# working around weird behavior on vpn network changes
+Thread(target=stop_and_restart).start()
 updater.idle()
