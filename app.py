@@ -1,8 +1,10 @@
 import argparse
 import datetime
+import json
 import os
 
 import pytz
+import telegram
 from telegram import Update, Bot, PhotoSize
 from telegram.ext import Updater
 
@@ -12,18 +14,21 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 import db
-import render
 
-import context as ctx
 
 parser = argparse.ArgumentParser(description='Launch')
 parser.add_argument('--key', action='store', dest='key', required=True)
-parser.add_argument('--www', action='store', dest='www', required=True)
+parser.add_argument('--root', action='store', dest='root', required=True)
 
 # to allow introducing arguments in advance
 cfg, unknown = parser.parse_known_args()
 
-render.set_www_root(cfg.www)
+
+
+with open(os.path.join(cfg.root, "telegram.json")) as f:
+    tg_cfg = json.load(f)
+
+
 
 local_tz = pytz.timezone('Asia/Yekaterinburg')
 
@@ -33,67 +38,31 @@ def utc_to_local(utc_dt):
     return local_tz.normalize(local_dt)  # .normalize might be unnecessary
 
 
-updater = Updater(cfg.key)
+
+bot = telegram.Bot(token=cfg.key)
+
+updater = Updater(bot=bot)
 dispatcher = updater.dispatcher
 
 
-def handle_photo(bot: Bot, update: Update):
-    context = ctx.get_active(update)
+def handle_message(bot: Bot, update: Update):
 
-    if not context:
-        reply(bot, update, context, "need context!")
+    chat_id = update.message.chat_id
+
+    if not chat_id in tg_cfg['chats']:
+        reply(bot, update, "Chat {0} not registered".format(chat_id))
         return
 
+    chat =  tg_cfg['chats'][chat_id]
+    folder = chat['folder']
+
     local = get_message_date_local(update)
-
-    p: PhotoSize
-
-    prefix = local.strftime('%Y-%m-%d_%H%M%S')
-
-    photos = []
-    for p in update.message.photo:
-        id = p.file_id
-        file = bot.get_file(id)
-
-        name = "{0}_{3}_{1}x{2}.jpg".format(prefix, p.height, p.width, update.message.message_id)
-        photos.append({'file': name, 'height': p.height, 'width': p.width})
-        name = os.path.join(db.get_dir(context), name)
-
-        file.download(name)
-
-    db.append_item(context, {
-        'kind': 'photo',
-        'photos': photos,
+    db.append_item(folder, {
         'time': local.isoformat(),
         'raw': update.to_dict(),
     })
 
-    render.render_context(context)
-
-    reply(bot, update, context, 'saved')
-
-
-def handle_text(bot: Bot, update: Update):
-    context = ctx.get_active(update)
-
-    if not context:
-        reply(bot, update, context, "need context!")
-        return
-
-    local = get_message_date_local(update)
-
-    text = update.message.text
-
-    db.append_item(context, {
-        'kind': 'text',
-        'text': text,
-        'time': local.isoformat(),
-        'raw': update.to_dict(),
-    })
-
-    render.render_context(context)
-    reply(bot, update, context, "ok")
-
+    reply(bot, update, 'ok')
 
 def get_message_date_local(update: Update):
     date = update.message.date
@@ -103,17 +72,14 @@ def get_message_date_local(update: Update):
     return local
 
 
-def reply(bot, update, context, status):
-    text = '{0}> {1}'.format(context, status)
-    bot.send_message(chat_id=update.message.chat_id, text=text)
+def reply(bot, update, status):
+
+    bot.send_message(chat_id=update.message.chat_id, text=status)
 
 
 from telegram.ext import MessageHandler, Filters
 
-render.render_all()
-
-dispatcher.add_handler(MessageHandler(Filters.text, handle_text))
-dispatcher.add_handler(MessageHandler(Filters.photo, handle_photo))
+dispatcher.add_handler(MessageHandler(Filters.all, handle_message))
 
 updater.start_polling()
 updater.idle()
