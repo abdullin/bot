@@ -82,7 +82,7 @@ def reply(bot, status, chat_id = None):
 
 from telegram.ext import MessageHandler, Filters
 
-dispatcher.add_handler(MessageHandler(Filters.all, handle_message, edited_updates=True))
+dispatcher.add_handler(MessageHandler(Filters.all, handle_message, edited_updates=True, message_updates=True))
 
 updater.start_polling()
 updater.idle()
