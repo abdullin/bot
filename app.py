@@ -83,7 +83,7 @@ def handle_message(bot: Bot, update: Update):
             reply(bot, "{0}> saved {1}".format(context, update.update_id))
             return
 
-        result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=folder)
+        result = subprocess.run(exec, stdout=subprocess.PIPE,stderr=subprocess.PIPE, cwd=path.abspath(folder))
         output = result.stdout.decode('utf-8')
         if len(output) > 1000:
             output = output[-1000:]
