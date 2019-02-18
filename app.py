@@ -70,6 +70,8 @@ def handle_message(bot: Bot, update: Update):
         chat = tg_cfg['chats'][chat_id]
         folder = chat['folder']
 
+        os.makedirs(folder, exist_ok=True)
+
         context = folder
 
         local = get_message_date_local(update)
