@@ -70,7 +70,7 @@ def handle_message(bot: Bot, update: Update):
         chat = tg_cfg['chats'][chat_id]
         folder = chat['folder']
 
-        os.makedirs(folder, exist_ok=True)
+
 
         context = folder
 
@@ -88,6 +88,8 @@ def handle_message(bot: Bot, update: Update):
         em.pop("chat", None)
 
         index_dir = path.join(cfg.root, folder)
+
+        os.makedirs(index_dir, exist_ok=True)
 
 
         for kind in ['document', 'video']:
