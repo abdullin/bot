@@ -99,6 +99,7 @@ def handle_message(bot: Bot, update: Update):
         photo = em.get("photo", None)
         if photo:
             save_file(photo[-1], index_dir, context)
+            save_file(photo[-2], index_dir, context)
 
 
 
@@ -127,11 +128,13 @@ def handle_message(bot: Bot, update: Update):
 def save_file(doc, index_dir, context):
     file_id = doc['file_id']
     file = bot.get_file(file_id)
+
     temp_path = path.join(index_dir, "download.tmp")
     file.download(custom_path=temp_path)
     hash = sha256sum(temp_path)
 
     doc['sha1'] = hash
+    doc['file_path'] = file.file_path
     os.rename(temp_path, path.join(index_dir, hash))
     reply(bot, "{0}> saved".format(context))
 
