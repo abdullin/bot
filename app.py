@@ -134,7 +134,7 @@ def save_file(doc, index_dir, context):
     hash = sha256sum(temp_path)
 
     doc['sha1'] = hash
-    doc['file_path'] = file.file_path
+    doc['name'] = path.basename(file.file_path)
     os.rename(temp_path, path.join(index_dir, hash))
     reply(bot, "{0}> saved".format(context))
 
