@@ -133,9 +133,10 @@ def save_file(doc, index_dir, context):
     hash = sha256sum(temp_path)
 
     doc['sha1'] = hash
-    doc['name'] = path.basename(file.file_path)
+    basename = path.basename(file.file_path)
+    doc['name'] = basename
     os.rename(temp_path, path.join(index_dir, hash))
-    reply("{0}> saved".format(context))
+    reply("{0}> saved {1} as {2}".format(context, basename, hash[0:7]))
 
 
 def get_message_date_local(update: Update):
